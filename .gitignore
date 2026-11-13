@@ -1,0 +1,18 @@
+# Binaries and test artefacts
+*.exe
+*.test
+*.out
+*.prof
+/bin/
+/dist/
+coverage.*
+
+# Local environment
+.env
+.env.*
+
+# Editors
+.idea/
+.vscode/
+*.swp
+.DS_Store
