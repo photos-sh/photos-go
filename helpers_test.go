@@ -4,9 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"image"
-	"image/color"
-	"image/png"
 	"io"
 	"mime"
 	"mime/multipart"
@@ -196,26 +193,6 @@ func writeImage(w http.ResponseWriter, contentType string, body []byte, headers 
 		w.Header().Set(k, v)
 	}
 	w.Write(body)
-}
-
-// testPNG is a small real PNG: a dark square on a white ground.
-func testPNG(t testing.TB, w, h int) []byte {
-	t.Helper()
-	img := image.NewRGBA(image.Rect(0, 0, w, h))
-	for y := 0; y < h; y++ {
-		for x := 0; x < w; x++ {
-			c := color.RGBA{255, 255, 255, 255}
-			if x > w/4 && x < 3*w/4 && y > h/4 && y < 3*h/4 {
-				c = color.RGBA{uint8(40 + x%60), 60, uint8(120 + y%80), 255}
-			}
-			img.Set(x, y, c)
-		}
-	}
-	var buf bytes.Buffer
-	if err := png.Encode(&buf, img); err != nil {
-		t.Fatal(err)
-	}
-	return buf.Bytes()
 }
 
 func wantQuery(t *testing.T, got url.Values, want string) {
