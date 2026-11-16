@@ -80,13 +80,13 @@ func TestRemoveBackground(t *testing.T) {
 	}
 
 	_, err = f.client.RemoveBackground(ctx, Bytes("shoe.jpg", in), &RemoveBackgroundOptions{
-		Format: FormatWebP, Quality: 80, Background: "#ffffff", Crop: true, Padding: 12, Mask: true,
+		Format: FormatWebP, Quality: 80, Background: "#ffffff", Crop: true, Padding: 12, Studio: true, Mask: true,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	wantImageRequest(t, f, "/v1/remove-background",
-		"format=webp&quality=80&background=%23ffffff&crop=true&padding=12&mask=true", in)
+		"format=webp&quality=80&background=%23ffffff&crop=true&padding=12&studio=true&mask=true", in)
 
 	// Unset options are left out, not sent as zeros.
 	if _, err = f.client.RemoveBackground(ctx, Bytes("shoe.jpg", in), &RemoveBackgroundOptions{Format: "jpg"}); err != nil {
@@ -623,7 +623,7 @@ func TestRemoveBackgroundStaging(t *testing.T) {
 	if len(r.Parts) != 2 {
 		t.Errorf("%d parts, want image and background", len(r.Parts))
 	}
-	// An empty canvas: the photo had no subject.
+	// The photo had no subject: it comes back as it was.
 	if img.SubjectFound == nil || *img.SubjectFound {
 		t.Errorf("SubjectFound = %v, want false", img.SubjectFound)
 	}

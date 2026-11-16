@@ -114,6 +114,18 @@ img, err := client.RemoveBackground(ctx, photos.File("shoe.jpg"), &photos.Remove
 })
 ```
 
+For a studio shot (a product on a plain, light backdrop, as in a light tent),
+`Studio: true` also keeps what clearly stands out from the backdrop and
+touches the product: the gift box, case or lid shown with a bottle, or a pale
+box the model left half transparent. Shadows and the floor below the product
+are left out. A photo without a plain light backdrop is cut out as without it.
+
+```go
+img, err := client.RemoveBackground(ctx, photos.File("perfume.jpg"), &photos.RemoveBackgroundOptions{
+	Studio: true, // keep the gift box beside the bottle
+})
+```
+
 The cutout can be staged in the same call: on a canvas, with a shadow or a
 reflection, in front of a colour, an image or the photo's own blurred
 background. Give at most one of `Background`, `BackgroundImage` and `Blur`.
@@ -129,7 +141,7 @@ img, err := client.RemoveBackground(ctx, photos.File("shoe.jpg"), &photos.Remove
 	BackgroundImage: photos.File("studio.jpg"), // or Background: "white", or Blur: 40
 })
 if img.SubjectFound != nil && !*img.SubjectFound {
-	// the photo has no subject: the canvas is empty
+	// the photo has no subject: it came back as it was, without the canvas
 }
 ```
 
@@ -673,7 +685,7 @@ So do the items of the newer operations. Each of these returns what the
 synchronous method does:
 
 ```go
-img, err := res.RemoveBackground() // *photos.Image; SubjectFound is nil unless a canvas stayed empty
+img, err := res.RemoveBackground() // *photos.Image; SubjectFound is nil unless the photo had no subject
 img, err = res.Crop()              // *photos.Image with its SubjectFound
 svg, err := res.Vectorize()        // *photos.VectorizeResult: Paths
 blur, err := res.BlurFaces()       // *photos.BlurFacesResult: Faces
@@ -686,7 +698,7 @@ They return that error, never zero values, when the result lacks the headers
 they read (`X-Marketplace-Passed`, `X-Text-Removed`, `X-Subject-Found` for a
 crop, `X-Paths`, `X-Faces`, `X-Id-Photo-Passed`, `X-Select-Score`,
 `X-Faces-Skipped`). `RemoveBackground` is the exception: the API sends
-`X-Subject-Found` only when a canvas stayed empty, so without it the image
+`X-Subject-Found` only when the photo has no subject, so without it the image
 comes back with a nil `SubjectFound`. The same headers
 are in the job itself, lower-case, as `job.Items[n].Headers`
 (`"x-marketplace-passed"`, `"x-marketplace-findings"`, `"x-text-removed"`,

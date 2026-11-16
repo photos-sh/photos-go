@@ -26,8 +26,8 @@ type Image struct {
 	// SubjectFound says whether a subject was found in the photo (the
 	// X-Subject-Found header). It is nil when the response did not say: nil
 	// means "unknown", not "no". Crop always says. RemoveBackground says
-	// false when a canvas was asked for and the photo has no subject; the
-	// canvas is then empty.
+	// false when the photo has no subject; the photo then comes back as it
+	// was.
 	SubjectFound *bool
 	// Header is every header of the response.
 	Header http.Header

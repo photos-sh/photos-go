@@ -69,6 +69,13 @@ type RemoveBackgroundOptions struct {
 	Crop bool
 	// Padding is the margin around the subject when cropping, in pixels.
 	Padding int
+	// Studio is for studio shots: a product on a plain, light backdrop, as
+	// in a light tent. It also keeps what clearly stands out from the
+	// backdrop and touches the product, such as the gift box, case or lid
+	// shown with a bottle, or a pale box the model left half transparent.
+	// Shadows and the floor below the product are left out. A photo without
+	// a plain light backdrop is cut out as without it.
+	Studio bool
 	// Mask returns the greyscale alpha mask instead of the cutout.
 	Mask bool
 	// Width and Height place the subject on a canvas of this size, in
@@ -582,8 +589,8 @@ func checkImages(images []Input) error {
 // front of a colour, an image or the photo's own blurred background. opts
 // may be nil.
 //
-// With a canvas and no subject in the photo, the result is an empty canvas
-// and its SubjectFound is false.
+// When the photo has no subject (under 3% of it), the photo comes back as it
+// was, with or without a canvas, and its SubjectFound is false.
 func (c *Client) RemoveBackground(ctx context.Context, image Input, opts *RemoveBackgroundOptions) (*Image, error) {
 	q := newQuery()
 	parts := imageParts(image)
@@ -593,6 +600,7 @@ func (c *Client) RemoveBackground(ctx context.Context, image Input, opts *Remove
 		q.str("background", opts.Background)
 		q.flag("crop", opts.Crop)
 		q.num("padding", opts.Padding)
+		q.flag("studio", opts.Studio)
 		q.flag("mask", opts.Mask)
 		q.num("width", opts.Width)
 		q.num("height", opts.Height)

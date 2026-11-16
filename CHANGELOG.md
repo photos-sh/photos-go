@@ -4,6 +4,23 @@ All notable changes to this library are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the library uses
 [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- `RemoveBackgroundOptions.Studio` (the `studio` parameter, engine 0.1.10):
+  for studio shots, a product on a plain, light backdrop. It also keeps what
+  clearly stands out from the backdrop and touches the product, such as the
+  gift box, case or lid shown with a bottle. Shadows and the floor are left
+  out, and a photo without a plain light backdrop is cut out as without it.
+
+### Changed
+
+- The documentation of `RemoveBackground` and `Image.SubjectFound`: with no
+  subject in the photo (engine 0.1.9), the API returns the photo as it was,
+  with or without a canvas, instead of an empty canvas. `SubjectFound` is
+  then false, as before.
+
 ## 1.0.0 (unreleased)
 
 First version.

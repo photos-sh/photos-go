@@ -292,8 +292,8 @@ func (r *JobItemResult) Fix() (*FixResult, error) {
 
 // RemoveBackground returns the result of a "remove-background" job's item as
 // the synchronous Client.RemoveBackground would: the image, whose
-// SubjectFound is false when a canvas was asked for and the photo has no
-// subject.
+// SubjectFound is false when the photo has no subject (it then comes back as
+// it was).
 //
 // The API sends the X-Subject-Found header only then. A result without it is
 // not an error: its SubjectFound is nil, which means "not known". A result
