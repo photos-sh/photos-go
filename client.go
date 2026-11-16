@@ -17,7 +17,7 @@ import (
 )
 
 // Version is the version of this library.
-const Version = "1.0.0"
+const Version = "1.2.1"
 
 const (
 	// DefaultBaseURL is where the API lives unless WithBaseURL or the
