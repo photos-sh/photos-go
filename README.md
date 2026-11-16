@@ -388,7 +388,32 @@ img, err = client.Run(ctx, photos.File("shoe.jpg"), &photos.RunOptions{
 })
 
 presets, err := client.Presets(ctx) // []photos.Preset{{Name, Description}}
+toml, err := client.Preset(ctx, "studio") // the preset's recipe, to start your own from
 ```
+
+A recipe is one request, charged as one, however many steps it has. Its
+`[barcodes]` and `[text]` steps read the photo before any step changes it,
+and what they read comes back with the image:
+
+```go
+img, err := client.Run(ctx, photos.File("ham.jpg"), &photos.RunOptions{Recipe: `
+[barcodes]
+[text]
+[remove_background]
+[background]
+color = "white"
+[output]
+format = "jpg"
+`})
+for _, code := range img.Barcodes { // nil without [barcodes], empty if none was found
+	fmt.Println(code.Format, code.Value)
+}
+fmt.Println(img.Text, img.TextTruncated) // the lines read; at most 8 KB of them
+```
+
+The steps, their options and the rules are in the API reference under
+`POST /v1/run`. Reading needs the engine release that added it (16-11-2026);
+an older engine refuses `[barcodes]` and `[text]` with a 422.
 
 ### Fix a photo for a marketplace
 

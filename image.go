@@ -1,6 +1,7 @@
 package photos
 
 import (
+	"encoding/json"
 	"math"
 	"net/http"
 	"os"
@@ -29,6 +30,17 @@ type Image struct {
 	// false when the photo has no subject; the photo then comes back as it
 	// was.
 	SubjectFound *bool
+	// Barcodes are the codes a recipe's [barcodes] step read off the photo
+	// (Run; the X-Barcodes header). They are nil when the recipe has no such
+	// step, and empty when it found none.
+	Barcodes []Barcode
+	// Text is the lines a recipe's [text] step read off the photo, top to
+	// bottom (Run; the X-Text header): nil without the step, empty when it
+	// found no text.
+	Text []string
+	// TextTruncated says lines were left out of Text: the API sends at most
+	// 8 KB of them (X-Text-Truncated). ReadText gives every line.
+	TextTruncated bool
 	// Header is every header of the response.
 	Header http.Header
 }
@@ -142,6 +154,9 @@ const (
 	headerMarketplacePassed   = "X-Marketplace-Passed"
 	headerMarketplaceFindings = "X-Marketplace-Findings"
 	headerSubjectFound        = "X-Subject-Found"
+	headerBarcodes            = "X-Barcodes"
+	headerText                = "X-Text"
+	headerTextTruncated       = "X-Text-Truncated"
 	headerPaths               = "X-Paths"
 	headerFaces               = "X-Faces"
 	headerFacesSkipped        = "X-Faces-Skipped"
@@ -205,15 +220,34 @@ func headerList(h http.Header, name string) []string {
 
 func newImage(resp *response) *Image {
 	return &Image{
-		Bytes:        resp.body,
-		ContentType:  resp.header.Get("Content-Type"),
-		Width:        headerInt(resp.header, "X-Image-Width"),
-		Height:       headerInt(resp.header, "X-Image-Height"),
-		Quality:      headerInt(resp.header, "X-Image-Quality"),
-		ServerTiming: strings.Join(resp.header.Values("Server-Timing"), ", "),
-		SubjectFound: headerOptBool(resp.header, headerSubjectFound),
-		Header:       resp.header,
+		Bytes:         resp.body,
+		ContentType:   resp.header.Get("Content-Type"),
+		Width:         headerInt(resp.header, "X-Image-Width"),
+		Height:        headerInt(resp.header, "X-Image-Height"),
+		Quality:       headerInt(resp.header, "X-Image-Quality"),
+		ServerTiming:  strings.Join(resp.header.Values("Server-Timing"), ", "),
+		SubjectFound:  headerOptBool(resp.header, headerSubjectFound),
+		Barcodes:      headerJSON[[]Barcode](resp.header, headerBarcodes),
+		Text:          headerJSON[[]string](resp.header, headerText),
+		TextTruncated: headerBool(resp.header, headerTextTruncated),
+		Header:        resp.header,
 	}
+}
+
+// headerJSON decodes a header that holds JSON. It gives the zero value when
+// the header is absent, or is not the JSON expected: what the API reports
+// beside an image never fails the image itself.
+func headerJSON[T any](h http.Header, name string) T {
+	var v T
+	raw := h.Get(name)
+	if raw == "" {
+		return v
+	}
+	if err := json.Unmarshal([]byte(raw), &v); err != nil {
+		var zero T
+		return zero
+	}
+	return v
 }
 
 func newRemoveTextResult(resp *response) *RemoveTextResult {

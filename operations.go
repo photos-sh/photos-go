@@ -183,7 +183,8 @@ type RemoveTextOptions struct {
 type RunOptions struct {
 	// Preset is the name of a built-in preset, such as "marketplace".
 	Preset string
-	// Recipe is a recipe as TOML text.
+	// Recipe is a recipe as TOML text. Preset gives a preset's, to start
+	// from; the format is in the API reference under POST /v1/run.
 	Recipe string
 }
 
@@ -682,7 +683,10 @@ func (c *Client) RemoveText(ctx context.Context, image Input, opts *RemoveTextOp
 	return newRemoveTextResult(resp), nil
 }
 
-// Run applies a preset (opts.Preset) or a recipe (opts.Recipe) to an image.
+// Run applies a preset (opts.Preset) or a recipe (opts.Recipe) to an image:
+// several steps on one upload, charged as one request. A recipe's [barcodes]
+// and [text] steps read the photo before any step changes it, and what they
+// read is in the image's Barcodes and Text.
 func (c *Client) Run(ctx context.Context, image Input, opts *RunOptions) (*Image, error) {
 	q := newQuery()
 	parts := imageParts(image)
@@ -1094,6 +1098,23 @@ func (c *Client) Account(ctx context.Context) (*Account, error) {
 		return nil, err
 	}
 	return out, nil
+}
+
+// Preset gives a built-in preset's recipe as TOML: what RunOptions.Recipe
+// takes, so a recipe of your own can start from it.
+func (c *Client) Preset(ctx context.Context, name string) (string, error) {
+	if name == "" {
+		return "", errors.New("photos: Preset: no name")
+	}
+	resp, err := c.send(ctx, &request{
+		method:          http.MethodGet,
+		path:            "/v1/presets/" + url.PathEscape(name),
+		retryConnection: true,
+	})
+	if err != nil {
+		return "", err
+	}
+	return string(resp.body), nil
 }
 
 // Presets lists the built-in presets Run takes.

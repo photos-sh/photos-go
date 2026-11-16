@@ -8,6 +8,13 @@ All notable changes to this library are recorded here. The format follows
 
 ### Added
 
+- `Image.Barcodes`, `Image.Text` and `Image.TextTruncated`: what a recipe's
+  `[barcodes]` and `[text]` steps read off the photo, from the `X-Barcodes`,
+  `X-Text` and `X-Text-Truncated` headers (also on job items). Nil when the
+  recipe has no such step, empty when it found nothing.
+- `Client.Preset(ctx, name)`: a built-in preset's recipe as TOML
+  (`GET /v1/presets/{name}`), to start a recipe of your own from.
+
 - `RemoveBackgroundOptions.Studio` (the `studio` parameter, engine 0.1.10):
   for studio shots, a product on a plain, light backdrop. It also keeps what
   clearly stands out from the backdrop and touches the product, such as the
