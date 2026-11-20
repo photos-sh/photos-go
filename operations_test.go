@@ -80,13 +80,19 @@ func TestRemoveBackground(t *testing.T) {
 	}
 
 	_, err = f.client.RemoveBackground(ctx, Bytes("shoe.jpg", in), &RemoveBackgroundOptions{
-		Format: FormatWebP, Quality: 80, Background: "#ffffff", Crop: true, Padding: 12, Studio: true, Mask: true,
+		Format: FormatWebP, Quality: 80, Background: "#ffffff", Crop: true, Padding: 12, Model: ModelLumen, Studio: true, Mask: true,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	wantImageRequest(t, f, "/v1/remove-background",
-		"format=webp&quality=80&background=%23ffffff&crop=true&padding=12&studio=true&mask=true", in)
+		"format=webp&quality=80&background=%23ffffff&crop=true&padding=12&model=lumen&studio=true&mask=true", in)
+
+	// A model this library has no constant for is sent as given.
+	if _, err = f.client.RemoveBackground(ctx, Bytes("shoe.jpg", in), &RemoveBackgroundOptions{Model: "nova"}); err != nil {
+		t.Fatal(err)
+	}
+	wantImageRequest(t, f, "/v1/remove-background", "model=nova", in)
 
 	// Unset options are left out, not sent as zeros.
 	if _, err = f.client.RemoveBackground(ctx, Bytes("shoe.jpg", in), &RemoveBackgroundOptions{Format: "jpg"}); err != nil {

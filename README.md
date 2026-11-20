@@ -126,6 +126,26 @@ img, err := client.RemoveBackground(ctx, photos.File("perfume.jpg"), &photos.Rem
 })
 ```
 
+`Model` picks the model that finds the subject. Each costs the same: try
+another when one drops part of what you sell. Left empty, the API uses its
+default, `atlas`.
+
+| Model | Recommended for |
+|---|---|
+| `photos.ModelAtlas` (default) | Everyday product photos: a product alone or with its box, on any backdrop. |
+| `photos.ModelLumen` | Pale packaging on a light backdrop, such as a cream or wooden box beside a bottle, and close-ups where the product fills the photo. On those, `atlas` can keep the bottle and drop the box. It may keep a dark backdrop at the photo's edge, and can cut away part of an open frame or wire stand. |
+| `photos.ModelMuse` | People: portraits, and models wearing the product. |
+
+```go
+img, err := client.RemoveBackground(ctx, photos.File("perfume.jpg"), &photos.RemoveBackgroundOptions{
+	Model:  photos.ModelLumen, // the cream gift box as well as the bottle
+	Studio: true,              // works with any model
+})
+```
+
+`Model` is a string, so a model the API adds later can be named before this
+library has a constant for it.
+
 The cutout can be staged in the same call: on a canvas, with a shadow or a
 reflection, in front of a colour, an image or the photo's own blurred
 background. Give at most one of `Background`, `BackgroundImage` and `Blur`.
@@ -654,7 +674,8 @@ job, err = client.Jobs.Create(ctx, &photos.JobRequest{
 `OperationCaption`. For `OperationRun`, `Recipe` takes recipe TOML.
 
 A job item is one image, so a `watermark` job takes `text` only and a
-`remove-background` job no background image. A parameter that repeats takes a
+`remove-background` job no background image, though it takes `model`
+(`"model": photos.ModelLumen`) and `studio`. A parameter that repeats takes a
 `[]string`: `"point": []string{"420,310", "440,300"}` for a `select` job.
 
 Wait for it, then collect the results:

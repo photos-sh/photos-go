@@ -30,6 +30,15 @@ const (
 	RegionAll        = "all"        // text on the product too
 )
 
+// Background-removal models, for RemoveBackgroundOptions.Model. Each costs
+// the same. Model takes any name, so one the API adds later can be sent
+// before this library has a constant for it.
+const (
+	ModelAtlas = "atlas" // everyday product photos (the default)
+	ModelLumen = "lumen" // pale packaging on a light backdrop; close-ups
+	ModelMuse  = "muse"  // people: portraits, models wearing the product
+)
+
 // MaxImagesPerRequest is how many photos ReadLabel and Identify take.
 const MaxImagesPerRequest = 8
 
@@ -69,6 +78,22 @@ type RemoveBackgroundOptions struct {
 	Crop bool
 	// Padding is the margin around the subject when cropping, in pixels.
 	Padding int
+	// Model is the model that finds the subject. Each costs the same: try
+	// another when one drops part of what you sell. Empty leaves the choice
+	// to the API, whose default is ModelAtlas.
+	//
+	//   - ModelAtlas: everyday product photos, a product alone or with its
+	//     box, on any backdrop.
+	//   - ModelLumen: pale packaging on a light backdrop, such as a cream or
+	//     wooden box beside a bottle, and close-ups where the product fills
+	//     the photo. On those, atlas can keep the bottle and drop the box.
+	//     Lumen may keep a dark backdrop at the photo's edge, and can cut
+	//     away part of an open frame or wire stand.
+	//   - ModelMuse: people, in portraits and as models wearing the product.
+	//
+	// Any other name is sent as it is, for a model the API adds later. Model
+	// works with Studio.
+	Model string
 	// Studio is for studio shots: a product on a plain, light backdrop, as
 	// in a light tent. It also keeps what clearly stands out from the
 	// backdrop and touches the product, such as the gift box, case or lid
@@ -601,6 +626,7 @@ func (c *Client) RemoveBackground(ctx context.Context, image Input, opts *Remove
 		q.str("background", opts.Background)
 		q.flag("crop", opts.Crop)
 		q.num("padding", opts.Padding)
+		q.str("model", opts.Model)
 		q.flag("studio", opts.Studio)
 		q.flag("mask", opts.Mask)
 		q.num("width", opts.Width)

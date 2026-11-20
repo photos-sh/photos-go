@@ -6,6 +6,23 @@ All notable changes to this library are recorded here. The format follows
 
 ## Unreleased
 
+## 1.3.0 (2026-11-20)
+
+### Added
+
+- `RemoveBackgroundOptions.Model` (the `model` parameter, engine 0.1.14): the
+  model that finds the subject, with the constants `ModelAtlas` (the API's
+  default: everyday product photos, a product alone or with its box, on any
+  backdrop), `ModelLumen` (pale packaging on a light backdrop, such as a
+  cream or wooden box beside a bottle, and close-ups where the product fills
+  the photo) and `ModelMuse` (people: portraits, and models wearing the
+  product). Each costs the same, and each works with `Studio`. Left empty,
+  the parameter is not sent and the API's default applies; any other name is
+  sent as given, for a model the API adds later. A `remove-background` job
+  takes it in `Params` as `"model"`.
+
+## 1.2.1 (2026-11-16)
+
 ### Fixed
 
 - `Version` (sent in the User-Agent) says the library's version: it said

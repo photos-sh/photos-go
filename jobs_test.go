@@ -68,7 +68,7 @@ func TestJobsCreateWithURLs(t *testing.T) {
 	})
 	job, err := f.client.Jobs.Create(context.Background(), &JobRequest{
 		Operation:  OperationRemoveBackground,
-		Params:     map[string]any{"format": "png", "crop": true, "padding": 10},
+		Params:     map[string]any{"format": "png", "crop": true, "padding": 10, "model": ModelLumen},
 		URLs:       []string{"https://example.com/a.jpg", "https://example.com/b.jpg"},
 		WebhookURL: "https://example.com/hook",
 	})
@@ -93,7 +93,7 @@ func TestJobsCreateWithURLs(t *testing.T) {
 	}
 	want := map[string]any{
 		"operation":   "remove-background",
-		"params":      map[string]any{"format": "png", "crop": true, "padding": float64(10)},
+		"params":      map[string]any{"format": "png", "crop": true, "padding": float64(10), "model": "lumen"},
 		"inputs":      []any{"https://example.com/a.jpg", "https://example.com/b.jpg"},
 		"webhook_url": "https://example.com/hook",
 	}
